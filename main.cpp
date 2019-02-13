@@ -1,5 +1,6 @@
 #include "src/videoreading.hpp"
 #include "src/ofcm.hpp"
+#include "src/haralick.hpp"
 
 
 using namespace std;
