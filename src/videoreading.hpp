@@ -1,18 +1,21 @@
+#ifndef VIDEOREADING_H
+#define VIDEOREADING_H
+
+
 #include "common.h"
 #include "cuboid.hpp"
-#include <opencv2/opencv.hpp>
 
 using namespace std;
 
 class VideoReading {
+
+public:
     int videoLength;
     int videoWidth;
     int videoHeight;
 
     vector<cv::Mat> video;
     vector<Cube> cuboids;
-
-public:
     VideoReading(string & filename) {
         cv::VideoCapture capture;
         capture.open(filename);
@@ -38,6 +41,7 @@ public:
             if (image.empty()) {
                 std::cerr << "Error processing file. Can't read frame " << i << "from video %s" << filename;
             }
+
             video.push_back(image.clone());
         }
 
@@ -48,15 +52,8 @@ public:
                 }
             }
         }
-
-        for (int i = 0; i < 100; i++) {
-            cout << "cuboide: " << i << endl;
-            cout << "x: " << cuboids[i].x << endl;
-            cout << "y: " << cuboids[i].y << endl;
-            cout << "t: " << cuboids[i].t << endl;
-        }
-
-        // cout << "cuboids size: " << cuboids.size() << endl;
     }
 
 };
+
+#endif // VIDEOREADING_H
