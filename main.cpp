@@ -35,5 +35,8 @@ int main(int argc, char *argv[]) {
         , tempScales
     );
 
+    ofcm->setData(vr->video);
+    ofcm->preProcess();
+
     return 0;
 }

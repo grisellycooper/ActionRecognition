@@ -89,7 +89,6 @@ public:
             , this->distanceAngle);
 
         this->numOpticalFlow = computeOpticalFlowPerCuboid();
-
         this->descriptorLength = ((4 * 12) + (4 * 12)) * this->numOpticalFlow;
     }
 

@@ -8,14 +8,14 @@
 using namespace std;
 
 class VideoReading {
+
+public:
     int videoLength;
     int videoWidth;
     int videoHeight;
 
     vector<cv::Mat> video;
     vector<Cube> cuboids;
-
-public:
     VideoReading(string & filename) {
         cv::VideoCapture capture;
         capture.open(filename);
@@ -35,8 +35,6 @@ public:
         int n = 24;
         int t = 5;
 
-        cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
-
         for (int i = 0; i < videoLength; i += step) {
             capture.set(CV_CAP_PROP_POS_FRAMES, i);
             capture.read((image));
@@ -44,13 +42,7 @@ public:
                 std::cerr << "Error processing file. Can't read frame " << i << "from video %s" << filename;
             }
 
-            cv::Mat img = image.clone();
-
-            video.push_back(img);
-            if (i == 0) {
-                cout << "image: " << image << endl;
-                // cv::imshow("Preview", img);
-            }
+            video.push_back(image.clone());
         }
 
         for (int ti = 0; ti <= 0 + video.size() - T; ti += t) {
