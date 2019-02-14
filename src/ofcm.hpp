@@ -5,6 +5,7 @@
 #include "cooccurrenceMatrix.hpp"
 #include "cuboid.hpp"
 #include "haralick.hpp"
+#include "showmat.hpp"
 
 using namespace std;
 using namespace cv;
@@ -127,10 +128,12 @@ class OFCM
                 {
                     a = cv::Point2f(static_cast<float>(j), static_cast<float>(i));
                     uPoints.push_back(a);
-                    // circle(test, a, 1, cv::Scalar(255, 0, 0), 6, 8, 0);
+                    circle(test, a, 1, cv::Scalar(255, 0, 0), 6, 8, 0);
                 }
             }
         }
+
+        showMat(test, "frameDif", true, false);
     }
 
     void VecDesp2MatJosue(vector<cv::Point2f> &vPoints, vector<cv::Point2f> &uPoints, ParMat &result)
@@ -177,13 +180,8 @@ class OFCM
     {
         for (auto &img : imgs)
         {
-            /* cv::namedWindow("Img", cv::WINDOW_NORMAL);
-            imshow("Img", img);
-            //if (cv::waitKey() == 27)
-            cv::waitKey(20); */
-
-            mImages.push_back(img.clone());
-
+            showMat(img, "InputVideo", false, false);
+            mImages.push_back(img.clone());            
         }
         // Todo setup maxMagnitude:
         // ceil(log(2; image[0].width ** 2 * image[0].height ** 2))
@@ -203,10 +201,12 @@ class OFCM
         //extractFeatures();
     }
 
-    void extract(const vector<Cube>& cuboids, Mat& output) {
+    void extract(const vector<Cube>& cuboids, Mat& output, vector<Mat *> matMagnitude, vector<Mat *> matAngle) {
         output.create(cuboids.size(), this->descriptorLength, CV_32F);
 
         int imagesSize = mImages.size();
+        
+
         for (auto & cuboid: cuboids) {
             Mat features;
             // Cube masterCube (0, 0, 0, mImages[0].cols, mImages[0].rows, imagesSize);
@@ -214,32 +214,33 @@ class OFCM
 
             // Technically the `cuboid` should be a valid cuboid which is inside the masterCube.
 
-            extractFeatures(cuboid, features);
-        }
+            extractFeatures(cuboid, features, matMagnitude, matAngle);
+        } 
     }
 
-    void extractFeatures(const Cube &cuboid, Mat &output)
+    void extractFeatures(const Cube &cuboid, Mat &output, vector<Mat *> matMagnitude, vector<Mat *> matAngle)
     {
         std::deque<ParMat> patches;
-        patches = CreatePatch(cuboid);
+        patches = CreatePatch(cuboid, matMagnitude, matAngle);
         output.release();
 
-        // verify sif there is any movement
         for (int i = 0, k = 0; i < patches.size(); i++) {
             std::vector<cv::Mat> mMagnitude, mAngles;
 
             comAngles->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].first, mAngles);
             comMagnitude->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].second, mMagnitude);
 
-            extractHaralickFeatures(mMagnitude, mAngles, output);
+            //extractHaralickFeatures(mMagnitude, mAngles, output);
         }
-        output = output.reshape(0, 1);
+        //output = output.reshape(0, 1);
+
 
         patches.clear();
     }
 
-    deque<ParMat> CreatePatch(const Cube &cuboid)
+    deque<ParMat> CreatePatch(const Cube &cuboid, vector<Mat *> matMagnitude, vector<Mat *> matAngle)
     {
+        //std::cout<<"magSize: " << matMagnitude.size()<<" - angSize: "<<matAngle.size()<<std::endl;
         std::deque<ParMat> patches;
         cv::Mat patchAngles, patchMagni;
         int thr = 1; // it's already quantized so zero is a movement from "bin 0"
@@ -249,26 +250,23 @@ class OFCM
         for (int i = cuboid.t; i < t1; i++) {
             int next = i + 1; // image to process with i
             if (next <= t1) {
-                int optFlowPos = this->mapToOpticalFlows[i][next];
-                ParMat angles_magni;
+                //int optFlowPos = this->mapToOpticalFlows[i][next];
+                
+                if(matAngle[cuboid.t/5] != NULL){                    
+                    ParMat angles_magni;                
+                    patchAngles = Mat(*matAngle[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
+                    patchMagni = Mat(*matMagnitude[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
 
-                patchAngles = Mat(
-                    this->data[optFlowPos].first
-                    , cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h)
-                );
+                    angles_magni.first = patchAngles.clone();
+                    angles_magni.second = patchMagni.clone();
 
-                patchMagni = Mat(
-                    this->data[optFlowPos].second
-                    , cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h))
-                ;
-
-                angles_magni.first = patchAngles.clone();
-                angles_magni.second = patchMagni.clone();
-
-                patches.push_back(angles_magni);
+                    patches.push_back(angles_magni);    
+                }
+                else{
+                    //patches.push_back(NULL);    
+                }
             }
-        }
-
+        }        
         return patches;
     }
 

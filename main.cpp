@@ -25,32 +25,22 @@ int main(int argc, char *argv[]) {
     vector<int> tempScales;
     tempScales.push_back(1); tempScales.push_back(2);
 
-    vector<Mat *> matMagnitude;
-    vector<Mat *> matOrientation;
-
-
     opticalflow oflow;
+    oflow.getOpticalFlowCuboid(vr->video, vr->matMagnitude, vr->matOrientation); 
 
-    oflow.getOpticalFlowCuboid(vr->video, matMagnitude, matOrientation);
-
-    // OFCM * ofcm = new OFCM(
-    //     nBinsMagnitude
-    //     , nBinsAngle
-    //     , distanceMagnitude
-    //     , distanceAngle
-    //     , cuboidLength
-    //     , maxMagnitude
-    //     , logQuantization
-    // );
-
-
-
-    // ofcm->setData(vr->video);
-    // ofcm->extract(vr->cuboids);
-    //Crear cuboids
-
-
-    // ofcm->preProcess();
-
+    OFCM * ofcm = new OFCM(
+         nBinsMagnitude
+         , nBinsAngle
+         , distanceMagnitude
+         , distanceAngle
+         , cuboidLength
+         , maxMagnitude
+         , logQuantization
+    );
+    
+    Mat output;
+    ofcm->setData(vr->video);
+    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation);
+    
     return 0;
 }

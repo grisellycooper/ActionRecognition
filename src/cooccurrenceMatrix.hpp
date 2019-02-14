@@ -34,19 +34,19 @@ class CoOccurrenceMatrix
             for (int col = patch.x; col < patch.width; col++)
             {
                 x = img(row, col);
+                //std::cout<<"x: "<<x << std::endl;
                 if (x == -1)
                     continue;
 
                 if (col + d < patch.width)
                 {
                     y = img(row, col + d);
+                    //std::cout<<"y: "<<y << std::endl;
                     if (y == -1)
                         continue;
 
-                    M0(y, x)
-                    ++;
-                    M0(x, y)
-                    ++;
+                    M0(y, x) ++;
+                    M0(x, y) ++;
                     sum++;
                 }
             }
@@ -82,10 +82,8 @@ class CoOccurrenceMatrix
                     if (y == -1)
                         continue;
 
-                    M45(y, x)
-                    ++;
-                    M45(x, y)
-                    ++;
+                    M45(y, x) ++;
+                    M45(x, y) ++;
                     sum++;
                 }
             }
@@ -121,10 +119,8 @@ class CoOccurrenceMatrix
                     if (y == -1)
                         continue;
 
-                    M90(y, x)
-                    ++;
-                    M90(x, y)
-                    ++;
+                    M90(y, x) ++;
+                    M90(x, y) ++;
                     sum++;
                 }
             }

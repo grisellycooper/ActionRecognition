@@ -49,22 +49,22 @@ void opticalflow::getOpticalFlowCuboid(
     // Get statusFeature : each element of the vector is:
     // = 1,  the flow for the corresponding features has been found
     // otherwise = 0.
-    cout << "get optical " << endl;
+    //cout << "get optical " << endl;
     Size imageSize = images.at(0).size();
     Size winSize = Size(21, 21);
     Size winSizeMin = Size(10, 10);
     int threshold = 30;
-    cout << "total imgs " << images.size() << endl;
+    //cout << "total imgs " << images.size() << endl;
     for (int idx = 0; idx < images.size() - step; idx = idx + step) {
-        cout << "idx: " << idx << endl;
+        //cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx).clone();        //  GrayScale
         Mat imageNext = images.at(idx + step).clone(); // GrayScale
 
         vector<Point2f> cornersImagePrev, cornersImageNext;
 
-        cvtColor(imagePrev, imagePrev, CV_BGR2GRAY);
-        cvtColor(imageNext, imageNext, CV_BGR2GRAY);
+        cvtColor(imagePrev, imagePrev, COLOR_BGR2GRAY);
+        cvtColor(imageNext, imageNext, COLOR_BGR2GRAY);
 
         Mat frameDif = cv::abs(imageNext - imagePrev);
         for (int i = 0; i < frameDif.rows; ++i) {
@@ -105,7 +105,7 @@ void opticalflow::getOpticalFlowCuboid(
         } else {
             matMagnitude.push_back(NULL);
             matOrientation.push_back(NULL);
-            cout << "no matrices"<< endl;
+            //cout << "no matrices"<< endl;
 
         }
     }
@@ -140,7 +140,7 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
         int y = (int)(cornersImagePrev[i].y);
         int x = (int)(cornersImagePrev[i].x);
 
-        *(magnitud->ptr<uchar>(y, x)) = valMagnitude;
+        *(magnitud->ptr<int>(y, x)) = valMagnitude;
 
     }
     return magnitud;
@@ -169,7 +169,7 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
         int x = (int)(cornersImagePrev[i].x);
         int y = (int)(cornersImagePrev[i].y);
 
-        *(orientation->ptr<uchar>(y, x)) = valAngle;
+        *(orientation->ptr<int>(y, x)) = valAngle;
     }
 
     return orientation;

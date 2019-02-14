@@ -6,6 +6,7 @@
 #include "cuboid.hpp"
 
 using namespace std;
+using namespace cv;
 
 class VideoReading {
 
@@ -14,7 +15,10 @@ public:
     int videoWidth;
     int videoHeight;
 
-    vector<cv::Mat> video;
+    vector<Mat*> matMagnitude;
+    vector<Mat*> matOrientation;
+
+    vector<Mat> video;
     vector<Cube> cuboids;
     VideoReading(string & filename) {
         cv::VideoCapture capture;
@@ -53,6 +57,8 @@ public:
             }
         }
     }
+
+
 
 };
 
