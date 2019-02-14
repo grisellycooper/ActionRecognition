@@ -33,13 +33,12 @@ int main(int argc, char *argv[]) {
         , cuboidLength
         , maxMagnitude
         , logQuantization
-        , tempScales
     );
 
     ofcm->setData(vr->video);
     //Crear cuboids
 
-    
+
     ofcm->preProcess();
 
     return 0;

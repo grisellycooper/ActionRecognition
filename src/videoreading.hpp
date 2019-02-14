@@ -28,11 +28,11 @@ public:
 
         int step = 5;
         cv::Mat image;
-        int M = 48;
-        int N = 48;
+        int M = 40;
+        int N = 40;
         int T = 10;
-        int m = 24;
-        int n = 24;
+        int m = 20;
+        int n = 20;
         int t = 5;
 
         for (int i = 0; i < videoLength; i += step) {
@@ -45,9 +45,9 @@ public:
             video.push_back(image.clone());
         }
 
-        for (int ti = 0; ti <= 0 + video.size() - T; ti += t) {
-            for (int y = 0; y <= 0 + videoHeight - N; y += n) {
-                for (int x = 0; x <= 0 + videoWidth - M; x += m) {
+        for (int ti = 0; ti <= video.size() - T; ti += t) {
+            for (int y = 0; y <= videoHeight - N; y += n) {
+                for (int x = 0; x <= videoWidth - M; x += m) {
                     cuboids.push_back(Cube(x, y, t, M, N, T));
                 }
             }

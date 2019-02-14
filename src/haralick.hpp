@@ -30,9 +30,6 @@ public:
             if (isnan(output.at<float>(0, i))) output.at<float>(0, i) = 0.0f;
 
         return output;
-
-
-        return output;
     }
 
     static float f1ASM(const cv::Mat& mat) {
