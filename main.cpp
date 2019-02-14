@@ -37,6 +37,9 @@ int main(int argc, char *argv[]) {
     );
 
     ofcm->setData(vr->video);
+    //Crear cuboids
+
+    
     ofcm->preProcess();
 
     return 0;

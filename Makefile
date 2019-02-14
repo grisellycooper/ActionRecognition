@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
+LDFLAGS=-lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio 
 
 SRCS=main.cpp
 OBJS=$(subst .cc,.o,$(SRCS))
