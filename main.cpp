@@ -1,4 +1,5 @@
 #include "src/videoreading.hpp"
+#include "src/opticalflow.hpp"
 #include "src/ofcm.hpp"
 #include "src/haralick.hpp"
 
@@ -24,22 +25,32 @@ int main(int argc, char *argv[]) {
     vector<int> tempScales;
     tempScales.push_back(1); tempScales.push_back(2);
 
+    vector<Mat *> matMagnitude;
+    vector<Mat *> matOrientation;
 
-    OFCM * ofcm = new OFCM(
-        nBinsMagnitude
-        , nBinsAngle
-        , distanceMagnitude
-        , distanceAngle
-        , cuboidLength
-        , maxMagnitude
-        , logQuantization
-    );
 
-    ofcm->setData(vr->video);
+    opticalflow oflow;
+
+    oflow.getOpticalFlowCuboid(vr->video, matMagnitude, matOrientation);
+
+    // OFCM * ofcm = new OFCM(
+    //     nBinsMagnitude
+    //     , nBinsAngle
+    //     , distanceMagnitude
+    //     , distanceAngle
+    //     , cuboidLength
+    //     , maxMagnitude
+    //     , logQuantization
+    // );
+
+
+
+    // ofcm->setData(vr->video);
+    // ofcm->extract(vr->cuboids);
     //Crear cuboids
 
 
-    ofcm->preProcess();
+    // ofcm->preProcess();
 
     return 0;
 }
