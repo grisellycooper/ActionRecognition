@@ -38,10 +38,12 @@ class opticalflow
  * Implement
 */
 
-void opticalflow::getOpticalFlowCuboid(vector<Mat> &images,
-                                       vector<Mat *> &matMagnitude,
-                                       vector<Mat *> &matOrientation,
-                                       int step)
+void opticalflow::getOpticalFlowCuboid(
+    vector<Mat> &images
+    , vector<Mat *> &matMagnitude
+    , vector<Mat *> &matOrientation
+    , int step = 1
+    )
 {
     // Get statusFeature : each element of the vector is:
     // = 1,  the flow for the corresponding features has been found
@@ -52,8 +54,7 @@ void opticalflow::getOpticalFlowCuboid(vector<Mat> &images,
     Size winSizeMin = Size(10, 10);
     int threshold = 30;
     cout << "total imgs " << images.size() << endl;
-    for (int idx = 0; idx < images.size() - step; idx = idx + step)
-    {
+    for (int idx = 0; idx < images.size() - step; idx = idx + step) {
         cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx);        //  GrayScale
@@ -77,43 +78,39 @@ void opticalflow::getOpticalFlowCuboid(vector<Mat> &images,
 
         cout << "corners " << cornersImagePrev.size() << endl;
 
-        vector<uchar> statusFeat;
+        // vector<uchar> statusFeat;
 
-        //Verify points
-        if (cornersImagePrev.size() > 0)
-        {
-            calcOpticalFlowPyrLK(
-                imagePrev,        // Previous image
-                imageNext,        // Next image
-                cornersImagePrev, // Previous set of corners (from imagePrev)
-                cornersImageNext, // Next set of corners (from imageNext)
-                statusFeat,       // Output vector, each is 1 for tracked
-                noArray(),        // Output vector, lists errors (optional)
-                winSize,          // Search window size
-                5,                // Maximum pyramid level to construct
-                TermCriteria(
-                    cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS,
-                    20, // Maximum number of iterations
-                    0.3 // Minimum change per iteration
-                    ),
-                0,      // Flags
-                0.001); // min
+        // //Verify points
+        // if (cornersImagePrev.size() > 0) {
+        //     calcOpticalFlowPyrLK(
+        //         imagePrev,        // Previous image
+        //         imageNext,        // Next image
+        //         cornersImagePrev, // Previous set of corners (from imagePrev)
+        //         cornersImageNext, // Next set of corners (from imageNext)
+        //         statusFeat,       // Output vector, each is 1 for tracked
+        //         noArray(),        // Output vector, lists errors (optional)
+        //         winSize,          // Search window size
+        //         5,                // Maximum pyramid level to construct
+        //         TermCriteria(
+        //             TermCriteria::MAX_ITER | TermCriteria::EPS,
+        //             20, // Maximum number of iterations
+        //             0.3 // Minimum change per iteration
+        //             ),
+        //         0,      // Flags
+        //         0.001); // min
 
-            //Create orientation matriz
-            Mat *orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
-            matOrientation.push_back(orientation);
+        //     Mat *orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
+        //     matOrientation.push_back(orientation);
 
-            //Create magnitud matriz
-            Mat *magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
-            matMagnitude.push_back(magnitude);
-        }
-        else
-        {
-            matMagnitude.push_back(NULL);
-            matOrientation.push_back(NULL);
-            cout << "no matrices"<< endl;
+        //     Mat *magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
+        //     matMagnitude.push_back(magnitude);
+        // } else {
 
-        }
+        //     matMagnitude.push_back(NULL);
+        //     matOrientation.push_back(NULL);
+        //     cout << "no matrices"<< endl;
+
+        // }
     }
 }
 
@@ -131,28 +128,21 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
                                (pow((cornersImagePrev[i].y - cornersImageNext[i].y), 2)));
 
         int valMagnitude;
-        if (this->logQuantization == 1)
-        {
-            valMagnitude = static_cast<int>(floor(log2(magnitude)));
-        }
-        else
-        {
-            valMagnitude = static_cast<int>(floor(magnitude / (maxMagnitude / nBinsMagnitude)));
+        if (this->logQuantization == 1) {
+            valMagnitude = (int)(floor(log2(magnitude)));
+        } else {
+            valMagnitude = (int)(floor(magnitude / (maxMagnitude / nBinsMagnitude)));
         }
 
-        if (valMagnitude < 0)
-        {
-            valMagnitude = 0; 
-        }
+        valMagnitude = valMagnitude < 0 ? 0 : valMagnitude;
 
-        if (valMagnitude >= nBinsMagnitude)
-        {
+        if (valMagnitude >= nBinsMagnitude) {
             valMagnitude = nBinsMagnitude - 1;
         }
 
-        int idx = static_cast<int>(cornersImagePrev[i].x);
-        int idy = static_cast<int>(cornersImagePrev[i].y);
-        //cout << "eval: " << valMagnitude << endl;
+        int idx = (int)(cornersImagePrev[i].x);
+        int idy = (int)(cornersImagePrev[i].y);
+
         magnitud->at<int>(idy, idx) = valMagnitude;
 
     }
@@ -166,28 +156,23 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
     //angulo
     Mat *orientation = new Mat(imageSize, CV_16SC1, -1);
 
-    for (int i = 0; i < cornersImagePrev.size(); ++i)
-    {
+    for (int i = 0; i < cornersImagePrev.size(); ++i) {
 
         float catetoAdyacente = cornersImagePrev[i].x - cornersImageNext[i].x;
         float catetoOpuesto = cornersImagePrev[i].y - cornersImageNext[i].y;
-        float angle = static_cast<float>(atan2f(catetoOpuesto, catetoAdyacente) * 180 / CV_PI);
-        if (angle < 0)
-        {
+        float angle = (float)(atan2f(catetoOpuesto, catetoAdyacente) * 180 / CV_PI);
+        if (angle < 0) {
             angle += 360;
         }
 
-        float valAngle = static_cast<float>(floor(angle / (this->maxAngle /
-                                                     this->nBinsAngle)));
+        float valAngle = (float)(floor(angle / (this->maxAngle / this->nBinsAngle)));
 
         int idx = static_cast<int>(cornersImagePrev[i].x);
         int idy = static_cast<int>(cornersImagePrev[i].y);
-        //cout << "ang: " << valAngle << endl;
-        orientation->at<int>(idy,idx) = valAngle;
-
+        orientation->at<int>(idy, idx) = valAngle;
     }
 
-        return orientation;
+    return orientation;
 }
 
 opticalflow::opticalflow(/* args */)
