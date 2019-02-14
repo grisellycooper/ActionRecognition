@@ -56,7 +56,7 @@ void opticalflow::getOpticalFlowCuboid(
     int threshold = 30;
     cout << "total imgs " << images.size() << endl;
     for (int idx = 0; idx < images.size() - step; idx = idx + step) {
-        cout << "idx: " << idx << endl;
+        // cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx).clone();        //  GrayScale
         Mat imageNext = images.at(idx + step).clone(); // GrayScale
@@ -140,7 +140,10 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
         int y = (int)(cornersImagePrev[i].y);
         int x = (int)(cornersImagePrev[i].x);
 
-        *(magnitud->ptr<uchar>(y, x)) = valMagnitude;
+        
+        *(magnitud->ptr<short>(y, x)) = valMagnitude;
+       // cout << "real: " << valMagnitude << "h: " <<*(magnitud->ptr<int>(y, x)) << endl ;
+
 
     }
     return magnitud;
@@ -168,8 +171,8 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
 
         int x = (int)(cornersImagePrev[i].x);
         int y = (int)(cornersImagePrev[i].y);
-
-        *(orientation->ptr<uchar>(y, x)) = valAngle;
+        
+        *(orientation->ptr<short>(y, x)) = valAngle;
     }
 
     return orientation;
