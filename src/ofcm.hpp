@@ -111,71 +111,6 @@ class OFCM
         this->descriptorLength = ((4 * 12) + (4 * 12)) * this->numOpticalFlow;
     }
 
-    void filterPoints(std::vector<cv::Point2f> &uPoints, cv::Mat frameB, cv::Mat frameA, int thr)
-    {
-        cv::Mat test = cv::Mat::zeros(frameA.rows, frameB.cols, CV_8UC3);
-        cv::Point2f a;
-        uPoints.clear();
-        cvtColor(frameB, frameB, cv::COLOR_BGR2GRAY);
-        cvtColor(frameA, frameA, cv::COLOR_BGR2GRAY);
-
-        cv::Mat frameDif = cv::abs(frameB - frameA);
-        for (int i = 0; i < frameDif.rows; ++i)
-        {
-            for (int j = 0; j < frameDif.cols; ++j)
-            {
-                if (frameDif.at<uchar>(i, j) > thr)
-                {
-                    a = cv::Point2f(static_cast<float>(j), static_cast<float>(i));
-                    uPoints.push_back(a);
-                    circle(test, a, 1, cv::Scalar(255, 0, 0), 6, 8, 0);
-                }
-            }
-        }
-
-        showMat(test, "frameDif", true, false);
-    }
-
-    void VecDesp2MatJosue(vector<cv::Point2f> &vPoints, vector<cv::Point2f> &uPoints, ParMat &result)
-    {
-        int x, y, valAngle, valMagnitude;
-        float magnitude, angle, dy, dx;
-
-        for (int i = 0; i < static_cast<int>(uPoints.size()); ++i)
-        {
-            dy = vPoints[i].y - uPoints[i].y;
-            dx = vPoints[i].x - uPoints[i].x;
-
-            magnitude = sqrt((dx * dx) + (dy * dy));
-
-            angle = (float)(atan2f(dy, dx) * 180 / CV_PI);
-            if (angle < 0)
-                angle += 360;
-
-            valAngle = (float)(floor(angle / (this->maxAngle / this->nBinsAngle)));
-
-            if (logQuantization == 1) {
-                valMagnitude = (int)(floor(log2(magnitude)));
-            } else {
-                valMagnitude = (int)(floor(magnitude / (this->maxMagnitude / this->nBinsMagnitude)));
-            }
-
-            if (valMagnitude < 0){
-                valMagnitude = 0;
-            }
-
-            if (valMagnitude >= this->nBinsMagnitude) {
-                valMagnitude = this->nBinsMagnitude - 1;
-            }
-
-            y = (int)(uPoints[i].y);
-            x = (int)(uPoints[i].x);
-
-            result.first(y, x) = valAngle;
-            result.second(y, x) = valMagnitude;
-        }
-    }
-
     void setData(const vector<cv::Mat> &imgs)
     {
         for (auto &img : imgs)
@@ -251,7 +186,7 @@ class OFCM
             int next = i + 1; // image to process with i
             if (next <= t1) {
                 //int optFlowPos = this->mapToOpticalFlows[i][next];
-                
+                // AQUI ESTA EL ERROR!!! 
                 if(matAngle[cuboid.t/5] != NULL){                    
                     ParMat angles_magni;                
                     patchAngles = Mat(*matAngle[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));

@@ -173,7 +173,7 @@ class CoOccurrenceMatrix
 
     void GetAllMatrices(const cv::Rect &patch, cv::Mat_<int> &img, std::vector<cv::Mat> &output_set)
     {
-        cv::Mat single_output; // testar se vai precisar declarar o tamanho
+        cv::Mat single_output; 
 
         GetMatrix0(patch, img, single_output);
         GetMatrix45(patch, img, single_output);

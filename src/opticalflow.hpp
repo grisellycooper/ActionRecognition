@@ -5,6 +5,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include "showmat.hpp"
+
+#define debug 1
 
 using namespace cv;
 using namespace std;
@@ -50,12 +53,17 @@ void opticalflow::getOpticalFlowCuboid(
     // = 1,  the flow for the corresponding features has been found
     // otherwise = 0.
     //cout << "get optical " << endl;
+    Mat movementTest; 
     Size imageSize = images.at(0).size();
     Size winSize = Size(21, 21);
     Size winSizeMin = Size(10, 10);
-    int threshold = 30;
+    int threshold = 60;
     //cout << "total imgs " << images.size() << endl;
     for (int idx = 0; idx < images.size() - step; idx = idx + step) {
+        
+        if(debug == 1)
+            movementTest = Mat::zeros(images[0].rows, images[1].cols, CV_8UC3); 
+        
         // cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx).clone();        //  GrayScale
@@ -71,9 +79,13 @@ void opticalflow::getOpticalFlowCuboid(
             for (int j = 0; j < frameDif.cols; ++j) {
                 if (frameDif.at<uchar>(i, j) > threshold) {
                     cornersImagePrev.push_back(Point2f((float)(j), (float)(i)));
+                    if(debug == 1)
+                        circle(movementTest, Point2f((float)(j), (float)(i)), 1, cv::Scalar(0, 0, 255), 1, 4);
                 }
             }
         }
+        if(debug == 1)
+            showMat(movementTest, "FrameDiff", true, false);
 
         vector<uchar> statusFeat;
 
@@ -105,8 +117,7 @@ void opticalflow::getOpticalFlowCuboid(
         } else {
             matMagnitude.push_back(NULL);
             matOrientation.push_back(NULL);
-            //cout << "no matrices"<< endl;
-
+            std::cout<<"Frame " << idx << " has no movement"<< std::endl;
         }
     }
 }
@@ -118,9 +129,10 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
     // Mij = sqrt(u2_i,j + v2_i,j)
     Mat *magnitud = new Mat(imageSize, CV_16SC1, -1);
 
+    Mat magnitudeTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
+
     for (int i = 0; i < cornersImagePrev.size(); ++i)
     {
-
         float magnitude = sqrt(pow((cornersImagePrev[i].x - cornersImageNext[i].x), 2) +
                                (pow((cornersImagePrev[i].y - cornersImageNext[i].y), 2)));
 
@@ -139,13 +151,29 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
 
         int y = (int)(cornersImagePrev[i].y);
         int x = (int)(cornersImagePrev[i].x);
-
         
         *(magnitud->ptr<short>(y, x)) = valMagnitude;
        // cout << "real: " << valMagnitude << "h: " <<*(magnitud->ptr<int>(y, x)) << endl ;
 
-
+        if(debug == 1){
+            if(valMagnitude > 1)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 50, 0), 1, 4);
+            if(valMagnitude > 2)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 100, 0), 1, 4);
+            if(valMagnitude > 3)    
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 150, 0), 1, 4);
+            if(valMagnitude > 4)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 200, 0), 1, 4);
+            if(valMagnitude > 5)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 250, 0), 1, 4);
+            if(valMagnitude > 6)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(255, 255, 255), 1, 4);
+        } 
     }
+
+    if(debug == 1)
+        showMat(magnitudeTest, "Magnitude", true, true);
+
     return magnitud;
 }
 
@@ -156,6 +184,8 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
     //angulo
     Mat * orientation = new Mat(imageSize, CV_16SC1, -1);
     int size = cornersImagePrev.size();
+
+    Mat orientationTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
 
     for (int i = 0; i < size; ++i) {
 
@@ -173,8 +203,24 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
         int y = (int)(cornersImagePrev[i].y);
         
         *(orientation->ptr<short>(y, x)) = valAngle;
-    }
 
+        if(debug == 1){
+            if(valAngle > 3)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 50), 1, 4);
+            if(valAngle > 4)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 100), 1, 4);
+            if(valAngle > 5)    
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 150), 1, 4);
+            if(valAngle > 6)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 200), 1, 4);
+            if(valAngle > 7)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 250), 1, 4);
+            if(valAngle > 8)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(255, 255, 255), 1, 4);
+        }            
+    }
+    if(debug == 1)
+        showMat(orientationTest, "Orientation", true, true);
     return orientation;
 }
 

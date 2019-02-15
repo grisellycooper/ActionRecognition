@@ -1,3 +1,6 @@
+#ifndef SHOWMAT_H
+#define SHOWMAT_H
+
 #include "common.h"
 
 using namespace std;
@@ -18,3 +21,5 @@ void showMat(Mat mat, string windName, bool display, bool continuosly)
         }
     }
 }
+
+#endif
