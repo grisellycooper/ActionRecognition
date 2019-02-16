@@ -192,7 +192,7 @@ class OFCM
                     patchAngles = Mat(*matAngle[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
                     patchMagni = Mat(*matMagnitude[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
 
-                    angles_magni.first = patchAngles.clone();
+                   angles_magni.first = patchAngles.clone();
                     angles_magni.second = patchMagni.clone();
 
                     patches.push_back(angles_magni);    
