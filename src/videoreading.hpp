@@ -35,9 +35,9 @@ public:
         int M = 40;
         int N = 40;
         int T = 10;
-        int m = 20;
-        int n = 20;
-        int t = 5;
+        int m = 20; //X stride
+        int n = 20; //Y stride
+        int t = 5;  //frame stride
 
         for (int i = 0; i < videoLength; i += step) {
             capture.set(cv::CAP_PROP_POS_FRAMES, i);
@@ -52,7 +52,7 @@ public:
         for (int ti = 0; ti <= video.size() - T; ti += t) {
             for (int y = 0; y <= videoHeight - N; y += n) {
                 for (int x = 0; x <= videoWidth - M; x += m) {
-                    cuboids.push_back(Cube(x, y, t, M, N, T));
+                    cuboids.push_back(Cube(x, y, ti, M, N, T));
                 }
             }
         }
