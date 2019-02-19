@@ -15,8 +15,8 @@ public:
     int videoWidth;
     int videoHeight;
 
-    vector<Mat*> matMagnitude;
-    vector<Mat*> matOrientation;
+    vector<Mat> matMagnitude;
+    vector<Mat> matOrientation;
 
     vector<Mat> video;
     vector<Cube> cuboids;
@@ -36,6 +36,8 @@ public:
         std::cout<<"videoHeight: " << videoHeight <<std::endl;
         std::cout<<"-----------------------" <<std::endl;
 
+        matMagnitude.resize(videoLength);
+        matOrientation.resize(videoLength);
 
         int step = 5;
         cv::Mat image;

@@ -24,14 +24,14 @@ class opticalflow
   public:
     opticalflow(/* args */);
     void getOpticalFlowCuboid(vector<Mat> &images,
-                              vector<Mat *> &matMagnitude,
-                              vector<Mat *> &matOrientation,
+                              vector<Mat > &matMagnitude,
+                              vector<Mat > &matOrientation,
                               int step);
 
-    Mat *getOrientation(vector<Point2f> cornersImagePrev,
+    Mat getOrientation(vector<Point2f> cornersImagePrev,
                         vector<Point2f> cornersImageNext, Size  );
 
-    Mat *getMagnitude(vector<Point2f> cornersImagePrev,
+    Mat getMagnitude(vector<Point2f> cornersImagePrev,
                       vector<Point2f> cornersImageNext, Size imageSize);
 
     // Desctructor
@@ -44,8 +44,8 @@ class opticalflow
 
 void opticalflow::getOpticalFlowCuboid(
     vector<Mat> &images
-    , vector<Mat *> &matMagnitude
-    , vector<Mat *> &matOrientation
+    , vector<Mat > &matMagnitude
+    , vector<Mat > &matOrientation
     , int step = 1
     )
 {
@@ -110,19 +110,14 @@ void opticalflow::getOpticalFlowCuboid(
                 0,      // Flags
                 0.001); // min
 
-            Mat *orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
-            matOrientation.push_back(orientation);
+            Mat orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
+            matOrientation.at(idx) = orientation;
 
-            Mat *magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
-            matMagnitude.push_back(magnitude);
-
+            Mat magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
+            matMagnitude.at(idx) = magnitude;
             notNullCount++;
 
-        } else {
-            matMagnitude.push_back(NULL);
-            matOrientation.push_back(NULL);
-            //std::cout<<"Frame " << idx << " has no movement"<< std::endl;
-        }
+        } 
     }
 
     std::cout<<"Frames with movement: " <<notNullCount << std::endl;
@@ -130,12 +125,12 @@ void opticalflow::getOpticalFlowCuboid(
     std::cout<<"matOrientation size " << matOrientation.size() << std::endl;
 }
 
-Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
+Mat opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
                                vector<Point2f> cornersImageNext,
                                Size imageSize)
 {
     // Mij = sqrt(u2_i,j + v2_i,j)
-    Mat *magnitud = new Mat(imageSize, CV_16SC1, -1);
+    Mat magnitud =  Mat(imageSize, CV_16SC1, -1);
 
     Mat magnitudeTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
 
@@ -160,7 +155,7 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
         int y = (int)(cornersImagePrev[i].y);
         int x = (int)(cornersImagePrev[i].x);
         
-        *(magnitud->ptr<short>(y, x)) = valMagnitude;
+        *(magnitud.ptr<short>(y, x)) = valMagnitude;
        // cout << "real: " << valMagnitude << "h: " <<*(magnitud->ptr<int>(y, x)) << endl ;
 
         if(debug == 1){
@@ -185,12 +180,12 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
     return magnitud;
 }
 
-Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
+Mat opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
                                  vector<Point2f> cornersImageNext,
                                  Size imageSize)
 {
     //angulo
-    Mat * orientation = new Mat(imageSize, CV_16SC1, -1);
+    Mat  orientation = Mat(imageSize, CV_16SC1, -1);
     int size = cornersImagePrev.size();
 
     Mat orientationTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
@@ -210,7 +205,7 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
         int x = (int)(cornersImagePrev[i].x);
         int y = (int)(cornersImagePrev[i].y);
         
-        *(orientation->ptr<short>(y, x)) = valAngle;
+        *(orientation.ptr<short>(y, x)) = valAngle;
 
         if(debug == 1){
             if(valAngle > 3)
