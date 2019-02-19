@@ -21,10 +21,11 @@ class CoOccurrenceMatrix
         M135.create(nbins, nbins);
     }
 
-    void GetMatrix0(const cv::Rect &patch, cv::Mat_<int> &img, cv::Mat &output)
+    void GetMatrix0(const cv::Rect &patch, cv::Mat &img, cv::Mat &output)
     {
         float sum = 0.0f;
-        int d, x, y;
+        int d;
+        short x, y;
 
         d = this->distance;
 
@@ -33,14 +34,14 @@ class CoOccurrenceMatrix
         {
             for (int col = patch.x; col < patch.width; col++)
             {
-                x = img(row, col);
+                x = img.at<short>(row, col);
                 //std::cout<<"x: "<<x << std::endl;
                 if (x == -1)
                     continue;
 
                 if (col + d < patch.width)
                 {
-                    y = img(row, col + d);
+                    y = img.at<short>(row, col + d);
                     //std::cout<<"y: "<<y << std::endl;
                     if (y == -1)
                         continue;
@@ -60,7 +61,7 @@ class CoOccurrenceMatrix
         output = M0.clone();
     }
 
-    void GetMatrix45(const cv::Rect &patch, cv::Mat_<int> &img, cv::Mat &output)
+    void GetMatrix45(const cv::Rect &patch, cv::Mat &img, cv::Mat &output)
     {
         float sum = 0.0f;
         int d, x, y;
@@ -72,13 +73,13 @@ class CoOccurrenceMatrix
         {
             for (int col = patch.x; col < patch.width; col++)
             {
-                x = img(row, col);
+                x = img.at<short>(row, col);
                 if (x == -1)
                     continue;
 
                 if (row + d < patch.height && col - d >= patch.x)
                 {
-                    y = img(row + d, col - d);
+                    y = img.at<short>(row + d, col - d);
                     if (y == -1)
                         continue;
 
@@ -97,7 +98,7 @@ class CoOccurrenceMatrix
         output = M45.clone();
     }
 
-    void GetMatrix90(const cv::Rect &patch, cv::Mat_<int> &img, cv::Mat &output)
+    void GetMatrix90(const cv::Rect &patch, cv::Mat &img, cv::Mat &output)
     {
         float sum = 0.0f;
         int d, x, y;
@@ -109,13 +110,13 @@ class CoOccurrenceMatrix
         {
             for (int col = patch.x; col < patch.width; col++)
             {
-                x = img(row, col);
+                x = img.at<short>(row, col);
                 if (x == -1)
                     continue;
 
                 if (row + d < patch.height)
                 {
-                    y = img(row + d, col);
+                    y = img.at<short>(row + d, col);
                     if (y == -1)
                         continue;
 
@@ -134,25 +135,24 @@ class CoOccurrenceMatrix
         output = M90.clone();
     }
 
-    void GetMatrix135(const cv::Rect &patch, cv::Mat_<int> &img, cv::Mat &output)
+    void GetMatrix135(const cv::Rect &patch, cv::Mat &img, cv::Mat &output)
     {
         float sum = 0.0f;
         int d, x, y;
 
         d = this->distance;
-
         M135 = cv::Mat::zeros(this->nbins, this->nbins, CV_32F);
         for (int row = patch.y; row < patch.height; row++)
         {
             for (int col = patch.x; col < patch.width; col++)
             {
-                x = img(row, col);
+                x = img.at<short>(row, col);
                 if (x == -1)
                     continue;
 
                 if (row + d < patch.height && col + d < patch.width)
                 {
-                    y = img(row + d, col + d);
+                    y = img.at<short>(row + d, col + d);
                     if (y == -1)
                         continue;
 
@@ -171,7 +171,7 @@ class CoOccurrenceMatrix
         output = M135.clone();
     }
 
-    void GetAllMatrices(const cv::Rect &patch, cv::Mat_<int> &img, std::vector<cv::Mat> &output_set)
+    void GetAllMatrices(const cv::Rect &patch, cv::Mat &img, std::vector<cv::Mat> &output_set)
     {
         cv::Mat single_output; 
 
@@ -184,6 +184,7 @@ class CoOccurrenceMatrix
         output_set.push_back(M45);
         output_set.push_back(M90);
         output_set.push_back(M135);
+        
     }
 };
 

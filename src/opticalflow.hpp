@@ -7,7 +7,7 @@
 #include <opencv2/opencv.hpp>
 #include "showmat.hpp"
 
-#define debug 1
+#define debug 0
 
 using namespace cv;
 using namespace std;
@@ -58,7 +58,9 @@ void opticalflow::getOpticalFlowCuboid(
     Size winSize = Size(21, 21);
     Size winSizeMin = Size(10, 10);
     int threshold = 60;
-    //cout << "total imgs " << images.size() << endl;
+
+    int notNullCount = 0;
+    cout << "total imgs " << images.size() << endl;
     for (int idx = 0; idx < images.size() - step; idx = idx + step) {
         
         if(debug == 1)
@@ -85,7 +87,7 @@ void opticalflow::getOpticalFlowCuboid(
             }
         }
         if(debug == 1)
-            showMat(movementTest, "FrameDiff", true, false);
+            showMat(movementTest, "FrameDiff", true, true);
 
         vector<uchar> statusFeat;
 
@@ -114,12 +116,18 @@ void opticalflow::getOpticalFlowCuboid(
             Mat *magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
             matMagnitude.push_back(magnitude);
 
+            notNullCount++;
+
         } else {
             matMagnitude.push_back(NULL);
             matOrientation.push_back(NULL);
-            std::cout<<"Frame " << idx << " has no movement"<< std::endl;
+            //std::cout<<"Frame " << idx << " has no movement"<< std::endl;
         }
     }
+
+    std::cout<<"Frames with movement: " <<notNullCount << std::endl;
+    std::cout<<"matMagnitude size " << matMagnitude.size() << std::endl;
+    std::cout<<"matOrientation size " << matOrientation.size() << std::endl;
 }
 
 Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
@@ -220,7 +228,7 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
         }            
     }
     if(debug == 1)
-        showMat(orientationTest, "Orientation", true, true);
+        //showMat(orientationTest, "Orientation", true, true);
     return orientation;
 }
 

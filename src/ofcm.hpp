@@ -109,6 +109,7 @@ class OFCM
 
         this->numOpticalFlow = computeOpticalFlowPerCuboid();
         this->descriptorLength = ((4 * 12) + (4 * 12)) * this->numOpticalFlow;
+        //this->descriptorLength = 12;
     }
 
     void setData(const vector<cv::Mat> &imgs)
@@ -136,11 +137,20 @@ class OFCM
         //extractFeatures();
     }
 
-    void extract(const vector<Cube>& cuboids, Mat& output, vector<Mat *> matMagnitude, vector<Mat *> matAngle) {
+    void extract(const vector<Cube>& cuboids, Mat& output, vector<Mat *> &matMagnitude, vector<Mat *> &matAngle) {        
+        
+        std::cout << "descriptorLength: " << this->descriptorLength <<std::endl;
         output.create(cuboids.size(), this->descriptorLength, CV_32F);
-
+        int idCuboid = 0;
         int imagesSize = mImages.size();
         
+        /* For each cuboid, we compute 2 * (4 * 12 * n-1) matrices
+         * 2 -> because magnitude and orientation
+         * 4 -> because 0°, 45°, 90°, 135°
+         * 12 -> because we choose 12 haralik features
+         * n-1 -> because the cuboid length
+         * This matrix is stored in features Matrix
+         */   
 
         for (auto & cuboid: cuboids) {
             Mat features;
@@ -148,61 +158,76 @@ class OFCM
             // Cube cutCube = masterCube & cuboid;
 
             // Technically the `cuboid` should be a valid cuboid which is inside the masterCube.
-
+            std::cout <<"---------------------- CUBOID: " <<idCuboid++ <<std::endl;
             extractFeatures(cuboid, features, matMagnitude, matAngle);
-        } 
+            std::cout <<"Features: " <<features <<std::endl;
+        }  
     }
 
-    void extractFeatures(const Cube &cuboid, Mat &output, vector<Mat *> matMagnitude, vector<Mat *> matAngle)
+    void extractFeatures(const Cube &cuboid, Mat &output, vector<Mat *> &matMagnitude, vector<Mat *> &matAngle)
     {
-        std::deque<ParMat> patches;
-        patches = CreatePatch(cuboid, matMagnitude, matAngle);
+        //std::vector<ParMat> patches;
+        vector<Mat> miniMagnitude, miniAngle;
+        CreatePatch(cuboid, matMagnitude, matAngle, miniMagnitude, miniAngle);
         output.release();
+        //Mat mee = Mat::zeros(50, 50, CV_16SC1);
 
-        for (int i = 0, k = 0; i < patches.size(); i++) {
-            std::vector<cv::Mat> mMagnitude, mAngles;
+        //std::cout<<"PatchSize: " << miniMagnitude.size() << " - " << miniAngle.size() << std::endl;
 
-            comAngles->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].first, mAngles);
-            comMagnitude->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].second, mMagnitude);
-
+        //for (int i = 0; i < miniMagnitude.size(); i++) {
+            /* std::cout << "--- Patch : " << i  <<std::endl;
+            showMat(mee, "mee", true, false); */
+            //std::vector<cv::Mat> mMagnitude, mAngles;
+            
+            /* comAngles->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), miniAngle[i], mAngles);
+            comMagnitude->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), miniMagnitude[i], mMagnitude); */
+            
+            /* std::cout << "*** Angles Matrices : " <<std::endl;
+            cout<<mAngles[0] <<endl;
+            
+            std::cout << "*** Magnitud Matrices : " <<std::endl;
+            cout<<mMagnitude[0] <<endl; */
             //extractHaralickFeatures(mMagnitude, mAngles, output);
-        }
+            //cout<<std::endl;
+        //}
         //output = output.reshape(0, 1);
 
-
-        patches.clear();
+        //patches.clear();
     }
 
-    deque<ParMat> CreatePatch(const Cube &cuboid, vector<Mat *> matMagnitude, vector<Mat *> matAngle)
+    void CreatePatch(const Cube &cuboid, vector<Mat *> &matMagnitude, vector<Mat *> &matAngle, vector<Mat> & miniMag, vector<Mat> & miniAng)
     {
-        //std::cout<<"magSize: " << matMagnitude.size()<<" - angSize: "<<matAngle.size()<<std::endl;
-        std::deque<ParMat> patches;
-        cv::Mat patchAngles, patchMagni;
+        std::cout<<"*********** magSize: " << matMagnitude.size()<<" - angSize: "<<matAngle.size()<<std::endl;
+        cout<<"Size: " <<(*matMagnitude[0]).rows << " x " <<(*matMagnitude[0]).cols <<endl;
+        cout<<"Size: " <<(*matAngle[0]).rows << " x " <<(*matAngle[0]).cols <<endl;
+        //std::vector<ParMat> patches;
+        //cv::Mat_<int> patchAngles, patchMagni;
         int thr = 1; // it's already quantized so zero is a movement from "bin 0"
 
         int t1 = cuboid.l + cuboid.t - 1;
+        
+        //for (int i = cuboid.t; i < t1; i++) {
+            //std::cout << "CuboidId: "<< i << std::endl;
+            //int next = i + 1; // Not needed for now
+            //if (next <= t1) {
+            //int optFlowPos = this->mapToOpticalFlows[i][next];
+            
+            /* if (matAngle[i] == NULL || matMagnitude[i] == NULL)
+                continue;
+                
+            ParMat angles_magni;                
+            Mat src1 = *matMagnitude[i];
+            Mat src2 = *matAngle[i]; */
+            /*Rect R(cv::Rect(cv::Point2i(cuboid.x, cuboid.y), cv::Point2i(cuboid.x + cuboid.w, cuboid.y + cuboid.h))); //Create a rect 
+            Mat patchMagni = src1(R);
+            Mat patchAngles = src2(R);*/
+            
+            //cout<<"Size: " <<src1.rows << " x " <<src1.cols <<endl;
 
-        for (int i = cuboid.t; i < t1; i++) {
-            int next = i + 1; // image to process with i
-            if (next <= t1) {
-                //int optFlowPos = this->mapToOpticalFlows[i][next];
-                // AQUI ESTA EL ERROR!!! 
-                if(matAngle[cuboid.t/5] != NULL){                    
-                    ParMat angles_magni;                
-                    patchAngles = Mat(*matAngle[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
-                    patchMagni = Mat(*matMagnitude[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
-
-                   angles_magni.first = patchAngles.clone();
-                    angles_magni.second = patchMagni.clone();
-
-                    patches.push_back(angles_magni);    
-                }
-                else{
-                    //patches.push_back(NULL);    
-                }
-            }
-        }        
-        return patches;
+            /* miniMag.push_back(patchMagni);       
+            miniAng.push_back(patchAngles);                */
+        //}       
+        
     }
 
     void extractHaralickFeatures(std::vector<cv::Mat> &mMagnitude, std::vector<cv::Mat> &mAngles, cv::Mat &output)

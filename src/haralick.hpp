@@ -10,7 +10,6 @@ public:
     static cv::Mat compute(const cv::Mat & mat) {
         cv::Mat output = cv::Mat::zeros(1, 15, CV_32F);
         output.at<float>(0, 0) = f1ASM(mat);
-
         output.at<float>(0, 1) = f2Contrast(mat);
         output.at<float>(0, 2) = f3Correlation(mat);
         output.at<float>(0, 3) = f4Variance(mat);

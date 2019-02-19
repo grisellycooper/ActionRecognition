@@ -30,6 +30,13 @@ public:
         videoWidth = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_WIDTH));
         videoHeight = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
 
+        std::cout<<"Video Info -----------" <<std::endl;
+        std::cout<<"videoLength: " << videoLength <<std::endl;
+        std::cout<<"videoWidth: " << videoWidth <<std::endl;
+        std::cout<<"videoHeight: " << videoHeight <<std::endl;
+        std::cout<<"-----------------------" <<std::endl;
+
+
         int step = 5;
         cv::Mat image;
         int M = 40;
@@ -56,6 +63,7 @@ public:
                 }
             }
         }
+        std::cout <<"cuboids size: " << cuboids.size() <<std::endl;
     }
 
 
