@@ -27,6 +27,11 @@ int main(int argc, char *argv[]) {
 
     opticalflow oflow;
     oflow.getOpticalFlowCuboid(vr->video, vr->matMagnitude, vr->matOrientation); 
+    
+    std::cout<<"*********** magSize: " << vr->matMagnitude.size()<<" - angSize: "<< vr->matOrientation.size()<<std::endl;
+    cout<<"Size: " <<(*vr->matMagnitude[0]).rows << " x " <<(*vr->matMagnitude[0]).cols <<endl;
+    cout<<"Size: " <<(*vr->matOrientation[0]).rows << " x " <<(*vr->matOrientation[0]).cols <<endl;
+        
 
     OFCM * ofcm = new OFCM(
          nBinsMagnitude
@@ -40,7 +45,7 @@ int main(int argc, char *argv[]) {
     
     Mat output;
     ofcm->setData(vr->video);
-    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation);
+    //ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation);
     
     return 0;
 }
