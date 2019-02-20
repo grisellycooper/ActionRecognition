@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
     for (int idx = 0; idx < vr->video.size(); idx++)
     {
         std::cout << "*********** magSize: " << vr->matMagnitude.size() << " - angSize: " << vr->matOrientation.size() << std::endl;
-        cout << "Size: " << (vr->matMagnitude[idx]).rows << " x " << (vr->matMagnitude[0]).cols << endl;
-        cout << "Size: " << (vr->matOrientation[idx]).rows << " x " << (vr->matOrientation[0]).cols << endl;
+        cout << "Size: " << (vr->matMagnitude[idx]).rows << " x " << (vr->matMagnitude[idx]).cols << endl;
+        cout << "Size: " << (vr->matOrientation[idx]).rows << " x " << (vr->matOrientation[idx]).cols << endl;
     }
 
     OFCM *ofcm = new OFCM(
