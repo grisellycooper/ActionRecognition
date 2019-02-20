@@ -34,6 +34,7 @@ class opticalflow
     Mat getMagnitude(vector<Point2f> cornersImagePrev,
                       vector<Point2f> cornersImageNext, Size imageSize);
 
+    Mat createNullMat(Size size);
     // Desctructor
     ~opticalflow();
 };
@@ -61,7 +62,7 @@ void opticalflow::getOpticalFlowCuboid(
 
     int notNullCount = 0;
     cout << "total imgs " << images.size() << endl;
-    for (int idx = 0; idx < images.size() - step; idx = idx + step) {
+    for (int idx = 0; idx < images.size() - 1; idx++) {
         
         if(debug == 1)
             movementTest = Mat::zeros(images[0].rows, images[1].cols, CV_8UC3); 
@@ -69,7 +70,7 @@ void opticalflow::getOpticalFlowCuboid(
         // cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx).clone();        //  GrayScale
-        Mat imageNext = images.at(idx + step).clone(); // GrayScale
+        Mat imageNext = images.at(idx + 1).clone(); // GrayScale
 
         vector<Point2f> cornersImagePrev, cornersImageNext;
 
@@ -117,7 +118,12 @@ void opticalflow::getOpticalFlowCuboid(
             matMagnitude.at(idx) = magnitude;
             notNullCount++;
 
-        } 
+        } else
+        {
+            matOrientation.at(idx) = createNullMat(imageSize);
+            matMagnitude.at(idx) = createNullMat(imageSize);            
+        }
+        
     }
 
     std::cout<<"Frames with movement: " <<notNullCount << std::endl;
@@ -227,6 +233,11 @@ Mat opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
     return orientation;
 }
 
+Mat opticalflow::createNullMat(Size size)
+{
+     Mat  matNull = Mat(size, CV_16SC1, -1);
+     return matNull;
+}
 opticalflow::opticalflow(/* args */)
 {
 }

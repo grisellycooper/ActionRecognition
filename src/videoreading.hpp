@@ -36,9 +36,7 @@ public:
         std::cout<<"videoHeight: " << videoHeight <<std::endl;
         std::cout<<"-----------------------" <<std::endl;
 
-        matMagnitude.resize(videoLength);
-        matOrientation.resize(videoLength);
-
+        
         int step = 5;
         cv::Mat image;
         int M = 40;
@@ -57,6 +55,10 @@ public:
 
             video.push_back(image.clone());
         }
+        
+        matMagnitude.resize(video.size());
+        matOrientation.resize(video.size());
+
 
         for (int ti = 0; ti <= video.size() - T; ti += t) {
             for (int y = 0; y <= videoHeight - N; y += n) {

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
     Mat output;
     ofcm->setData(vr->video);
-    //ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation);
-
+    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename );
+    std::cout << "Size out" << output.size() << std::endl;
     return 0;
 }
