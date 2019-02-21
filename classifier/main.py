@@ -6,16 +6,6 @@ from sklearn.cluster import KMeans
 from scipy.cluster.vq import vq
 
 
-def create_dataset(dataset):
-        X = []
-        Y = []
-
-        for video in dataset:
-            X.append(video['features'])
-            Y.append(video['category'])
-        return X, Y
-
-
 class HumanActivityRecognition(object):
     def __init__(self, verbose=2):
         """Initial parameters for model
@@ -35,7 +25,7 @@ class HumanActivityRecognition(object):
         """
 
         self.dataset = pickle.load(open(path_file, 'rb'))
-        self.dataset = self.dataset[:1000]
+        self.dataset = self.dataset
 
     def clustering(
             self, method='k-means++', clusters=200, n_init=10):
@@ -52,7 +42,7 @@ class HumanActivityRecognition(object):
         features = pickle.load(
             open('data/train_keypoints.p', 'rb'))
 
-        features = features[:1000]
+        features = features
 
         self.kmeans = KMeans(
             init=method,
@@ -83,11 +73,15 @@ class HumanActivityRecognition(object):
         for i in range(n_videos):
             self.dataset[i]['features'] = bow[i]
 
-
-    def fit(self, C, kernel):
+    def fit(self, C=1, kernel='linear'):
         X, Y = [], []
-        model = SVC(C=C, kernel=kernel, verbose=self.verbose)
-        model.fit(X, Y)
+
+        for video in self.dataset:
+            X.append(video['features'])
+            Y.append(video['category'])
+
+        self.model = SVC(C=C, kernel=kernel, verbose=self.verbose)
+        self.model.fit(X, Y)
 
 
 if __name__ == '__main__':
@@ -95,3 +89,4 @@ if __name__ == '__main__':
     model.load_data('data/train.p')
     model.clustering()
     model.bagofwords()
+    model.fit()
