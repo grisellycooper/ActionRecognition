@@ -37,7 +37,7 @@ public:
         std::cout<<"-----------------------" <<std::endl;
 
         
-        int step = 5;
+        int step = 10;
         cv::Mat image;
         int M = 40;
         int N = 40;
@@ -56,6 +56,7 @@ public:
             video.push_back(image.clone());
         }
         
+        cout << "Video size: " << video.size() << endl;
         matMagnitude.resize(video.size());
         matOrientation.resize(video.size());
 

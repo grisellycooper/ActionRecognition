@@ -15,7 +15,10 @@ int main(int argc, char *argv[])
 
     string person(argv[1]);
     string video(argv[2]);
-    string filename = "Video/boxing/person" + person + "_boxing_d" + video + "_uncomp.avi";
+    bool flag = (string(argv[3]) == "true")? true: false;
+
+    cout << flag << endl;
+    string filename = "Video/handclapping/person" + person + "_handclapping_d" + video + "_uncomp.avi";
     std::cout << filename ;
     VideoReading *vr = new VideoReading(filename);
 
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
 
     Mat output;
     ofcm->setData(vr->video);
-    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename );
+    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename, flag);
     cout << endl;
     return 0;
 }

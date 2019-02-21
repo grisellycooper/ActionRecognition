@@ -8,7 +8,7 @@ using namespace std;
 class Haralick {
 public:
     static cv::Mat compute(const cv::Mat & mat) {
-        cv::Mat output = cv::Mat::zeros(1, 15, CV_32F);
+        cv::Mat output = cv::Mat::zeros(1, 12, CV_32F);
         output.at<float>(0, 0) = f1ASM(mat);
         output.at<float>(0, 1) = f2Contrast(mat);
         output.at<float>(0, 2) = f3Correlation(mat);
@@ -21,11 +21,11 @@ public:
         output.at<float>(0, 9) = f10DifferenceVariance(mat);
         output.at<float>(0, 10) = f11DifferenceEntropy(mat);
         output.at<float>(0, 11) = f12InformationCorrelation01(mat);
-        output.at<float>(0, 12) = f13InformationCorrelation02(mat);
-        output.at<float>(0, 13) = 0.0f;
-        output.at<float>(0, 14) = f15_Directionality(mat);
+        //output.at<float>(0, 12) = f13InformationCorrelation02(mat);
+        //output.at<float>(0, 13) = 0.0f;
+        //output.at<float>(0, 14) = f15_Directionality(mat);
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 12; i++)
             if (isnan(output.at<float>(0, i))) output.at<float>(0, i) = 0.0f;
 
         return output;
@@ -33,7 +33,6 @@ public:
 
     static float f1ASM(const cv::Mat& mat) {
         float sum = 0.0;
-
         for (auto i = 0; i < mat.rows; ++i)
             for (auto j = 0; j < mat.cols; ++j)
             sum += mat.at<float>(i, j) * mat.at<float>(i, j);

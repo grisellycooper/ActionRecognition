@@ -140,7 +140,8 @@ class OFCM
                  Mat &output,
                  vector<Mat> &matMagnitude,
                  vector<Mat> &matAngle,
-                 string videoname)
+                 string videoname,
+                 bool flagEnd)
     {
 
         std::cout << "descriptorLength: " << this->descriptorLength << std::endl;
@@ -171,7 +172,7 @@ class OFCM
             tempFeaturesCuboid.push_back(features.clone());
         }
 
-        writeFeatures(tempFeaturesCuboid, videoname);
+        writeFeatures(tempFeaturesCuboid, videoname, flagEnd);
 
     }
 
@@ -184,7 +185,7 @@ class OFCM
         //Mat mee = Mat::zeros(50, 50, CV_16SC1);
 
         //std::cout<<"PatchSize: " << miniMagnitude.size() << " - " << miniAngle.size() << std::endl;
-
+        
         for (int i = 0; i < miniMagnitude.size(); i++)
         {
             /* std::cout << "--- Patch : " << i  <<std::endl;
@@ -199,7 +200,6 @@ class OFCM
             
             std::cout << "*** Magnitud Matrices : " <<std::endl;
             cout<<mMagnitude[0] <<endl; */
-
             extractHaralickFeatures(mMagnitude, mAngles, output);
             //cout<<std::endl;
         }
@@ -240,7 +240,9 @@ class OFCM
         }
     }
 
-    void extractHaralickFeatures(std::vector<cv::Mat> &mMagnitude, std::vector<cv::Mat> &mAngles, cv::Mat &output)
+    void extractHaralickFeatures(std::vector<cv::Mat> &mMagnitude,
+                                std::vector<cv::Mat> &mAngles,
+                                cv::Mat &output)
     {
         for (cv::Mat &degreeMat : mMagnitude)
             output.push_back(Haralick::compute(degreeMat));
@@ -249,7 +251,9 @@ class OFCM
             output.push_back(Haralick::compute(degreeMat));
     }
 
-    void writeFeatures(vector<Mat> features, string nameVideo)
+    void writeFeatures(vector<Mat> features,
+                         string nameVideo,
+                         bool flagEnd)
     {
         
         // ofstream outputFile;
@@ -263,6 +267,11 @@ class OFCM
         {
             fs << ",";
         }
+        else
+        {
+            fs << "{ \"videos\":[";
+        }
+        
 
         //head json
         string head = "{ \"name\": \"" + nameVideo + "\", \"data\": [";
@@ -274,7 +283,18 @@ class OFCM
             {
                 for (int idh = 0; idh < features[idCub].size().height; idh++)
                 {
-                    line += to_string(features[idCub].at<float>(idh, idw)) + ",";
+                    string data = "";
+                    float value = features[idCub].at<float>(idh, idw);
+                    if (value == 0)
+                    {
+                        data = "0.0";
+                    }
+                    else
+                    {
+                        data = to_string(value);
+                    }
+                    
+                    line += data + ",";
                 }
             }
             if (idCub + 1 == features.size())
@@ -290,6 +310,12 @@ class OFCM
         }
         string foot = "]}";
         fs << foot;
+
+        if(flagEnd)
+        {
+            fs << "]}";
+        }
+        
         fs.close();
 
     }
