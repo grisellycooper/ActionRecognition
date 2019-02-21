@@ -147,7 +147,6 @@ class OFCM
         output.create(cuboids.size(), this->descriptorLength, CV_32F);
         int idCuboid = 0;
         int imagesSize = mImages.size();
-
         /* For each cuboid, we compute 2 * (4 * 12 * n-1) matrices
          * 2 -> because magnitude and orientation
          * 4 -> because 0°, 45°, 90°, 135°
@@ -165,14 +164,15 @@ class OFCM
             // Cube cutCube = masterCube & cuboid;
 
             // Technically the `cuboid` should be a valid cuboid which is inside the masterCube.
-            std::cout << "---------------------- CUBOID: " << idCuboid++ << std::endl;
+            //std::cout << "---------------------- CUBOID: " << idCuboid++ << std::endl;
             extractFeatures(cuboid, features, matMagnitude, matAngle);
-            std::cout << "Features size: " << features.size().width << " x " << features.size().height << std::endl;
+            //std::cout << "Features size: " << features.size().width << " x " << features.size().height << std::endl;
 
             tempFeaturesCuboid.push_back(features.clone());
         }
 
         writeFeatures(tempFeaturesCuboid, videoname);
+
     }
 
     void extractFeatures(const Cube &cuboid, Mat &output, vector<Mat> &matMagnitude, vector<Mat> &matAngle)
@@ -251,6 +251,7 @@ class OFCM
 
     void writeFeatures(vector<Mat> features, string nameVideo)
     {
+        
         // ofstream outputFile;
         ofstream fs;
         std::string fileName = "video_json.json";
@@ -290,6 +291,7 @@ class OFCM
         string foot = "]}";
         fs << foot;
         fs.close();
+
     }
 };
 

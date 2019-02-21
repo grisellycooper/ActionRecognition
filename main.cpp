@@ -12,8 +12,13 @@ int main(int argc, char *argv[])
         cerr << "Invalid video file path" << endl;
         return 1;
     }
-    string filename(argv[1]);
+
+    string person(argv[1]);
+    string video(argv[2]);
+    string filename = "Video/boxing/person" + person + "_boxing_d" + video + "_uncomp.avi";
+    std::cout << filename ;
     VideoReading *vr = new VideoReading(filename);
+
 
     int nBinsMagnitude = 4;
     int nBinsAngle = 6;
@@ -30,12 +35,6 @@ int main(int argc, char *argv[])
     opticalflow oflow;
     oflow.getOpticalFlowCuboid(vr->video, vr->matMagnitude, vr->matOrientation);
 
-    for (int idx = 0; idx < vr->video.size(); idx++)
-    {
-        std::cout << "*********** magSize: " << vr->matMagnitude.size() << " - angSize: " << vr->matOrientation.size() << std::endl;
-        cout << "Size: " << (vr->matMagnitude[idx]).rows << " x " << (vr->matMagnitude[idx]).cols << endl;
-        cout << "Size: " << (vr->matOrientation[idx]).rows << " x " << (vr->matOrientation[idx]).cols << endl;
-    }
 
     OFCM *ofcm = new OFCM(
         nBinsMagnitude, nBinsAngle, distanceMagnitude, distanceAngle, cuboidLength, maxMagnitude, logQuantization);
@@ -43,6 +42,6 @@ int main(int argc, char *argv[])
     Mat output;
     ofcm->setData(vr->video);
     ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename );
-    std::cout << "Size out" << output.size() << std::endl;
+    cout << endl;
     return 0;
 }
