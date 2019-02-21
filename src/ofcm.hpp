@@ -181,7 +181,7 @@ class OFCM
         for (auto &img : imgs)
         {
             showMat(img, "InputVideo", false, false);
-            mImages.push_back(img.clone());            
+            mImages.push_back(img.clone());
         }
         // Todo setup maxMagnitude:
         // ceil(log(2; image[0].width ** 2 * image[0].height ** 2))
@@ -205,33 +205,46 @@ class OFCM
         output.create(cuboids.size(), this->descriptorLength, CV_32F);
 
         int imagesSize = mImages.size();
-        
 
-        for (auto & cuboid: cuboids) {
+        for (int i = 0; i < 1; i++) {
+            cout << "i: " << i << endl;
             Mat features;
-            // Cube masterCube (0, 0, 0, mImages[0].cols, mImages[0].rows, imagesSize);
-            // Cube cutCube = masterCube & cuboid;
+            extractFeatures(cuboids[12], features, matMagnitude, matAngle);
+        }
 
-            // Technically the `cuboid` should be a valid cuboid which is inside the masterCube.
 
-            extractFeatures(cuboid, features, matMagnitude, matAngle);
-        } 
+        // for (auto & cuboid: cuboids) {
+        //     Mat features;
+        //     // Cube masterCube (0, 0, 0, mImages[0].cols, mImages[0].rows, imagesSize);
+        //     // Cube cutCube = masterCube & cuboid;
+
+        //     // Technically the `cuboid` should be a valid cuboid which is inside the masterCube.
+
+        //     extractFeatures(cuboid, features, matMagnitude, matAngle);
+
+        //     break;
+        // }
     }
 
     void extractFeatures(const Cube &cuboid, Mat &output, vector<Mat *> matMagnitude, vector<Mat *> matAngle)
     {
-        std::deque<ParMat> patches;
+        deque<ParMat> patches;
         patches = CreatePatch(cuboid, matMagnitude, matAngle);
         output.release();
 
+        cout << "patches.size(): " << patches.size() << endl;
         for (int i = 0, k = 0; i < patches.size(); i++) {
-            std::vector<cv::Mat> mMagnitude, mAngles;
+            vector<cv::Mat> mMagnitude, mAngles;
 
             comAngles->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].first, mAngles);
-            comMagnitude->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].second, mMagnitude);
+            cout << "patch: " << i << endl << patches[i].first << endl;
+            // comMagnitude->GetAllMatrices(Rect(0, 0, cuboid.w, cuboid.h), patches[i].second, mMagnitude);
 
-            //extractHaralickFeatures(mMagnitude, mAngles, output);
+            // cout << mMagnitude.size() << ": " << mMagnitude[1] << " - ";
+
+            // extractHaralickFeatures(mMagnitude, mAngles, output);
         }
+        // cout << endl;
         //output = output.reshape(0, 1);
 
 
@@ -251,22 +264,22 @@ class OFCM
             int next = i + 1; // image to process with i
             if (next <= t1) {
                 //int optFlowPos = this->mapToOpticalFlows[i][next];
-                
-                if(matAngle[cuboid.t/5] != NULL){                    
-                    ParMat angles_magni;                
+
+                if(matAngle[cuboid.t/5] != NULL){
+                    ParMat angles_magni;
                     patchAngles = Mat(*matAngle[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
                     patchMagni = Mat(*matMagnitude[cuboid.t/5], cv::Rect(cuboid.x, cuboid.y, cuboid.w, cuboid.h));
 
                     angles_magni.first = patchAngles.clone();
                     angles_magni.second = patchMagni.clone();
 
-                    patches.push_back(angles_magni);    
+                    patches.push_back(angles_magni);
                 }
                 else{
-                    //patches.push_back(NULL);    
+                    //patches.push_back(NULL);
                 }
             }
-        }        
+        }
         return patches;
     }
 

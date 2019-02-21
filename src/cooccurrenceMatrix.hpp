@@ -52,8 +52,11 @@ class CoOccurrenceMatrix
             }
         }
 
-        if (sum == 0.0f)
+        cout << "sum: " << sum << endl;
+
+        if (sum == 0.0f) {
             sum = 1.0f;
+        }
 
         M0 = M0 / sum;
 
