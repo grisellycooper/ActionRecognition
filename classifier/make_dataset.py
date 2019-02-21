@@ -12,8 +12,8 @@ categories = [
     'walking',
 ]
 
-train_people_id = [11, 12, 13, 14, 15, 16, 17, 18]
-dev_people_id = [19, 20, 21, 23, 24, 25, 1, 4]
+train_people_id = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 1, 4]
+dev_people_id = []
 test_people_id = [22, 2, 3, 5, 6, 7, 8, 9, 10]
 
 

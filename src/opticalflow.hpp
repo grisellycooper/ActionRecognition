@@ -5,6 +5,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include "showmat.hpp"
+
+#define debug 0
 
 using namespace cv;
 using namespace std;
@@ -21,16 +24,17 @@ class opticalflow
   public:
     opticalflow(/* args */);
     void getOpticalFlowCuboid(vector<Mat> &images,
-                              vector<Mat *> &matMagnitude,
-                              vector<Mat *> &matOrientation,
+                              vector<Mat > &matMagnitude,
+                              vector<Mat > &matOrientation,
                               int step);
 
-    Mat *getOrientation(vector<Point2f> cornersImagePrev,
+    Mat getOrientation(vector<Point2f> cornersImagePrev,
                         vector<Point2f> cornersImageNext, Size  );
 
-    Mat *getMagnitude(vector<Point2f> cornersImagePrev,
+    Mat getMagnitude(vector<Point2f> cornersImagePrev,
                       vector<Point2f> cornersImageNext, Size imageSize);
 
+    Mat createNullMat(Size size);
     // Desctructor
     ~opticalflow();
 };
@@ -41,8 +45,8 @@ class opticalflow
 
 void opticalflow::getOpticalFlowCuboid(
     vector<Mat> &images
-    , vector<Mat *> &matMagnitude
-    , vector<Mat *> &matOrientation
+    , vector<Mat > &matMagnitude
+    , vector<Mat > &matOrientation
     , int step = 1
     )
 {
@@ -50,16 +54,23 @@ void opticalflow::getOpticalFlowCuboid(
     // = 1,  the flow for the corresponding features has been found
     // otherwise = 0.
     //cout << "get optical " << endl;
+    Mat movementTest; 
     Size imageSize = images.at(0).size();
     Size winSize = Size(21, 21);
     Size winSizeMin = Size(10, 10);
-    int threshold = 30;
-    //cout << "total imgs " << images.size() << endl;
-    for (int idx = 0; idx < images.size() - step; idx = idx + step) {
+    int threshold = 60;
+
+    int notNullCount = 0;
+    cout << "total imgs " << images.size() << endl;
+    for (int idx = 0; idx < images.size() - 1; idx++) {
+        
+        if(debug == 1)
+            movementTest = Mat::zeros(images[0].rows, images[1].cols, CV_8UC3); 
+        
         // cout << "idx: " << idx << endl;
         //Define points
         Mat imagePrev = images.at(idx).clone();        //  GrayScale
-        Mat imageNext = images.at(idx + step).clone(); // GrayScale
+        Mat imageNext = images.at(idx + 1).clone(); // GrayScale
 
         vector<Point2f> cornersImagePrev, cornersImageNext;
 
@@ -71,9 +82,13 @@ void opticalflow::getOpticalFlowCuboid(
             for (int j = 0; j < frameDif.cols; ++j) {
                 if (frameDif.at<uchar>(i, j) > threshold) {
                     cornersImagePrev.push_back(Point2f((float)(j), (float)(i)));
+                    if(debug == 1)
+                        circle(movementTest, Point2f((float)(j), (float)(i)), 1, cv::Scalar(0, 0, 255), 1, 4);
                 }
             }
         }
+        if(debug == 1)
+            showMat(movementTest, "FrameDiff", true, true);
 
         vector<uchar> statusFeat;
 
@@ -96,31 +111,37 @@ void opticalflow::getOpticalFlowCuboid(
                 0,      // Flags
                 0.001); // min
 
-            Mat *orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
-            matOrientation.push_back(orientation);
+            Mat orientation = getOrientation(cornersImagePrev, cornersImageNext, imageSize);
+            matOrientation.at(idx) = orientation;
 
-            Mat *magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
-            matMagnitude.push_back(magnitude);
+            Mat magnitude = getMagnitude(cornersImagePrev, cornersImageNext, imageSize);
+            matMagnitude.at(idx) = magnitude;
+            notNullCount++;
 
-        } else {
-            matMagnitude.push_back(NULL);
-            matOrientation.push_back(NULL);
-            //cout << "no matrices"<< endl;
-
+        } else
+        {
+            matOrientation.at(idx) = createNullMat(imageSize);
+            matMagnitude.at(idx) = createNullMat(imageSize);            
         }
+        
     }
+
+    std::cout<<"Frames with movement: " <<notNullCount << std::endl;
+    std::cout<<"matMagnitude size " << matMagnitude.size() << std::endl;
+    std::cout<<"matOrientation size " << matOrientation.size() << std::endl;
 }
 
-Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
+Mat opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
                                vector<Point2f> cornersImageNext,
                                Size imageSize)
 {
     // Mij = sqrt(u2_i,j + v2_i,j)
-    Mat *magnitud = new Mat(imageSize, CV_16SC1, -1);
+    Mat magnitud =  Mat(imageSize, CV_16SC1, -1);
+
+    Mat magnitudeTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
 
     for (int i = 0; i < cornersImagePrev.size(); ++i)
     {
-
         float magnitude = sqrt(pow((cornersImagePrev[i].x - cornersImageNext[i].x), 2) +
                                (pow((cornersImagePrev[i].y - cornersImageNext[i].y), 2)));
 
@@ -139,23 +160,41 @@ Mat *opticalflow::getMagnitude(vector<Point2f> cornersImagePrev,
 
         int y = (int)(cornersImagePrev[i].y);
         int x = (int)(cornersImagePrev[i].x);
-
         
-        *(magnitud->ptr<short>(y, x)) = valMagnitude;
+        *(magnitud.ptr<short>(y, x)) = valMagnitude;
        // cout << "real: " << valMagnitude << "h: " <<*(magnitud->ptr<int>(y, x)) << endl ;
 
-
+        if(debug == 1){
+            if(valMagnitude > 1)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 50, 0), 1, 4);
+            if(valMagnitude > 2)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 100, 0), 1, 4);
+            if(valMagnitude > 3)    
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 150, 0), 1, 4);
+            if(valMagnitude > 4)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 200, 0), 1, 4);
+            if(valMagnitude > 5)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 250, 0), 1, 4);
+            if(valMagnitude > 6)
+                circle(magnitudeTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(255, 255, 255), 1, 4);
+        } 
     }
+
+    if(debug == 1)
+        showMat(magnitudeTest, "Magnitude", true, true);
+
     return magnitud;
 }
 
-Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
+Mat opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
                                  vector<Point2f> cornersImageNext,
                                  Size imageSize)
 {
     //angulo
-    Mat * orientation = new Mat(imageSize, CV_16SC1, -1);
+    Mat  orientation = Mat(imageSize, CV_16SC1, -1);
     int size = cornersImagePrev.size();
+
+    Mat orientationTest = Mat::zeros(imageSize, CV_8UC3); // Debug    
 
     for (int i = 0; i < size; ++i) {
 
@@ -172,12 +211,33 @@ Mat *opticalflow::getOrientation(vector<Point2f> cornersImagePrev,
         int x = (int)(cornersImagePrev[i].x);
         int y = (int)(cornersImagePrev[i].y);
         
-        *(orientation->ptr<short>(y, x)) = valAngle;
-    }
+        *(orientation.ptr<short>(y, x)) = valAngle;
 
+        if(debug == 1){
+            if(valAngle > 3)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 50), 1, 4);
+            if(valAngle > 4)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 100), 1, 4);
+            if(valAngle > 5)    
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 150), 1, 4);
+            if(valAngle > 6)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 200), 1, 4);
+            if(valAngle > 7)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(0, 0, 250), 1, 4);
+            if(valAngle > 8)
+                circle(orientationTest, Point2f((float)(x), (float)(y)), 1, cv::Scalar(255, 255, 255), 1, 4);
+        }            
+    }
+    if(debug == 1)
+        //showMat(orientationTest, "Orientation", true, true);
     return orientation;
 }
 
+Mat opticalflow::createNullMat(Size size)
+{
+     Mat  matNull = Mat(size, CV_16SC1, -1);
+     return matNull;
+}
 opticalflow::opticalflow(/* args */)
 {
 }

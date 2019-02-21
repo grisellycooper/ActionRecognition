@@ -15,8 +15,8 @@ public:
     int videoWidth;
     int videoHeight;
 
-    vector<Mat*> matMagnitude;
-    vector<Mat*> matOrientation;
+    vector<Mat> matMagnitude;
+    vector<Mat> matOrientation;
 
     vector<Mat> video;
     vector<Cube> cuboids;
@@ -30,14 +30,21 @@ public:
         videoWidth = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_WIDTH));
         videoHeight = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_HEIGHT));
 
-        int step = 5;
+        std::cout<<"Video Info -----------" <<std::endl;
+        std::cout<<"videoLength: " << videoLength <<std::endl;
+        std::cout<<"videoWidth: " << videoWidth <<std::endl;
+        std::cout<<"videoHeight: " << videoHeight <<std::endl;
+        std::cout<<"-----------------------" <<std::endl;
+
+        
+        int step = 10;
         cv::Mat image;
         int M = 40;
         int N = 40;
         int T = 10;
-        int m = 20;
-        int n = 20;
-        int t = 5;
+        int m = 20; //X stride
+        int n = 20; //Y stride
+        int t = 5;  //frame stride
 
         for (int i = 0; i < videoLength; i += step) {
             capture.set(cv::CAP_PROP_POS_FRAMES, i);
@@ -48,14 +55,20 @@ public:
 
             video.push_back(image.clone());
         }
+        
+        cout << "Video size: " << video.size() << endl;
+        matMagnitude.resize(video.size());
+        matOrientation.resize(video.size());
+
 
         for (int ti = 0; ti <= video.size() - T; ti += t) {
             for (int y = 0; y <= videoHeight - N; y += n) {
                 for (int x = 0; x <= videoWidth - M; x += m) {
-                    cuboids.push_back(Cube(x, y, t, M, N, T));
+                    cuboids.push_back(Cube(x, y, ti, M, N, T));
                 }
             }
         }
+        std::cout <<"cuboids size: " << cuboids.size() <<std::endl;
     }
 
 
