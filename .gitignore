@@ -1,3 +1,7 @@
 *.out
 .vscode/
 app
+*.p
+*.csv
+classifier/data/
+classifier/xdata/
