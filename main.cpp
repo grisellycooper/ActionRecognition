@@ -14,20 +14,21 @@ int main(int argc, char *argv[])
     }
 
     string person(argv[1]);
-    string video(argv[2]);
+   // string video(argv[2]);
     bool flag = (string(argv[3]) == "true")? true: false;
 
-    cout << flag << endl;
-    string filename = "Video/handclapping/person" + person + "_handclapping_d" + video + "_uncomp.avi";
-    std::cout << filename ;
-    VideoReading *vr = new VideoReading(filename);
+    //cout << flag << endl;
+    //string filename = "Video/handclapping/person" + person + "_handclapping_d" + video + "_uncomp.avi";
+    string filename = "";
+    std::cout << argv[1] ;
+    VideoReading *vr = new VideoReading(person);
 
 
-    int nBinsMagnitude = 4;
-    int nBinsAngle = 6;
-    int distanceMagnitude = 2;
+    int nBinsMagnitude = 4; //sigma
+    int nBinsAngle = 8; // w
+    int distanceMagnitude = 1; 
     int distanceAngle = 3;
-    int cuboidLength = 5;
+    int cuboidLength = 5;  
     float maxMagnitude = 20;
     int logQuantization = 0;
 
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 
     Mat output;
     ofcm->setData(vr->video);
-    ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename, flag);
+    //ofcm->extract(vr->cuboids, output, vr->matMagnitude, vr->matOrientation, filename, flag);
     cout << endl;
     return 0;
 }

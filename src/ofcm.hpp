@@ -172,7 +172,7 @@ class OFCM
             tempFeaturesCuboid.push_back(features.clone());
         }
 
-        writeFeatures(tempFeaturesCuboid, videoname, flagEnd);
+        //writeFeatures(tempFeaturesCuboid, videoname, flagEnd);
 
     }
 

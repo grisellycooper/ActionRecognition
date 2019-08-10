@@ -37,14 +37,14 @@ public:
         std::cout<<"-----------------------" <<std::endl;
 
         
-        int step = 10;
+        int step = 5;
         cv::Mat image;
-        int M = 40;
-        int N = 40;
+        int M = 36;
+        int N = 36;
         int T = 10;
-        int m = 20; //X stride
-        int n = 20; //Y stride
-        int t = 5;  //frame stride
+        int m = 18; //X stride
+        int n = 18; //Y stride
+        int t = 5;  //frame strideCoOccurrenceMatrix
 
         for (int i = 0; i < videoLength; i += step) {
             capture.set(cv::CAP_PROP_POS_FRAMES, i);
